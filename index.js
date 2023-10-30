@@ -1,9 +1,11 @@
 const cv_fn = require ("./conversion-rules/function-name");
 
-
 const code = `
-function add(a, b) {
+function first(a, b) {
     // Function body
+    function two(x, y, z) {
+        //console.log
+    }
 }
 `;
 

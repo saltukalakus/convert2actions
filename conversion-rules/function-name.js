@@ -1,23 +1,26 @@
 const parser = require("@babel/parser");
 const generator = require("@babel/generator");
-const t = require("@babel/types"); // Import the Babel types library
 const traverse = require("@babel/traverse").default;
 
 function convert(code) {
-
     const ast = parser.parse(code);
 
-    // Traverse the AST and modify the function name
     traverse(ast, {
       FunctionDeclaration(path) {
-        if (path.node.id.name === "add") {
-          path.node.id.name = "multiply"; // Change the function name
+
+        // Check if the function has a parent node
+        if (!path.parentPath.isProgram()) {
+          // Skip this function if it's not in the top-level of the program
+          return;
         }
+
+        const newCode = `exports.onExecutePostLogin = async (event, api) => ${generator.default(path.node.body).code || '{}'};`;
+        const newAST = parser.parse(newCode);
+        path.replaceWith(newAST.program.body[0]);
       },
     });
-    
-    const regeneratedCode = generator.default(ast, {}, code);
-    return regeneratedCode.code;
+
+  return generator.default(ast, {}, code).code;
 }
 
 module.exports.convert = convert;
