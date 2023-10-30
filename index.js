@@ -1,14 +1,11 @@
-const parser = require("@babel/parser");
-const generator = require("@babel/generator");
+const cv_fn = require ("./conversion-rules/function-name");
+
 
 const code = `
 function add(a, b) {
-    return a + b;
+    // Function body
 }
 `;
 
-const ast = parser.parse(code); // Parse JavaScript code into an Abstract Syntax Tree (AST).
-const regeneratedCode = generator.default(ast, {}, code); // Regenerate the code while maintaining the original formatting.
-
-console.log(regeneratedCode.code);
+console.log(cv_fn.convert(code));
 
