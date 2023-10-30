@@ -1,0 +1,30 @@
+{
+  "name": "rules2actions",
+  "version": "1.0.0",
+  "description": "Convert Auth0 rules to actions.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saltukalakus/rules2actions.git"
+  },
+  "keywords": [
+    "Auth0",
+    "rules",
+    "Auth0",
+    "actions"
+  ],
+  "author": "Saltuk Alakus",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/saltukalakus/rules2actions/issues"
+  },
+  "homepage": "https://github.com/saltukalakus/rules2actions#readme",
+  "dependencies": {
+    "@babel/generator": "^7.23.0",
+    "@babel/parser": "^7.23.0"
+  }
+}
