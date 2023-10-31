@@ -13,7 +13,6 @@ function convert(code) {
           // Skip this function if it's not in the top-level of the program
           return;
         }
-
         const newCode = `exports.onExecutePostLogin = async (event, api) => ${generator.default(path.node.body).code || '{}'};`;
         const newAST = parser.parse(newCode);
         path.replaceWith(newAST.program.body[0]);
@@ -22,5 +21,11 @@ function convert(code) {
 
   return generator.default(ast, {}, code).code;
 }
+
+function searchReplaceAnonymous(code) {
+
+  return code;
+}
+
 
 module.exports.convert = convert;
