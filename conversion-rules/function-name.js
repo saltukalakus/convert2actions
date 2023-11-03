@@ -9,26 +9,44 @@ function convert(code) {
 
     traverse(ast, {
         FunctionDeclaration(path) {
+          if (path.node.id.name === "myRulesFunction") {
+            // Rename the function to "onExecutePostLogin"
+            path.node.id.name = "onExecutePostLogin";
+      
+            // Update the function parameters
+            // path.node.params = [t.identifier("event"), t.identifier("api")];
+      
             // Traverse the function's body and modify variable assignments
             path.traverse({
               VariableDeclaration(varPath) {
                 varPath.traverse({
                   VariableDeclarator(declaratorPath) {
                     if (declaratorPath.node.init) {
-                      if (t.isMemberExpression(declaratorPath.node.init) && declaratorPath.node.init.object.name === "user") {
-                        declaratorPath.node.init.object = t.memberExpression(t.identifier("event"), t.identifier("user"));
-                      } else if (t.isLogicalExpression(declaratorPath.node.init)) {
-                        if (t.isMemberExpression(declaratorPath.node.init.left) && declaratorPath.node.init.left.object.name === "user") {
-                          declaratorPath.node.init.left.object = t.memberExpression(t.identifier("event"), t.identifier("user"));
-                        }
-                      }
+                      declaratorPath.traverse({
+                        Identifier(IdentifierPath) {
+                          if ((IdentifierPath.node.name === path.node.params[0].name) && IdentifierPath.node.name !== "user"){
+                            // Update references to the first parameter to "event"
+                            IdentifierPath.node.name = "event";
+                          }
+                        },
+                        MemberExpression(MemberExpressionPath) {
+                          if (
+                            t.isIdentifier(MemberExpressionPath.node.object) &&
+                            MemberExpressionPath.node.object.name === path.node.params[0].name
+                          ) {
+                            // Update variable assignments referencing the first parameter
+                            MemberExpressionPath.node.object = t.memberExpression(t.identifier("event"), t.identifier("user"));
+                          }
+                        },
+                      });
                     }
                   },
                 });
               },
             });
+          }
         },
-    });
+      });
 
     const code2 = generator.default(ast, {}, code).code
     const ast2 = parser.parse(code2);
