@@ -37,27 +37,17 @@ function convert(code) {
                 });
               },
             });
+            if (!path.parentPath.isProgram()) {
+              // Skip this function if it's not in the top-level of the program
+              return;
+            }
+            const newCode = `exports.onExecutePostLogin = async (event, api) => ${generator.default(path.node.body).code || '{}'};`;
+            const newAST = parser.parse(newCode);
+            path.replaceWith(newAST.program.body[0]);
         },
       });
 
-    const code2 = generator.default(ast, {}, code).code
-    const ast2 = parser.parse(code2);
-
-    traverse(ast2, {
-      FunctionDeclaration(path) {
-
-        // Check if the function has a parent node
-        if (!path.parentPath.isProgram()) {
-          // Skip this function if it's not in the top-level of the program
-          return;
-        }
-        const newCode = `exports.onExecutePostLogin = async (event, api) => ${generator.default(path.node.body).code || '{}'};`;
-        const newAST = parser.parse(newCode);
-        path.replaceWith(newAST.program.body[0]);
-      },
-    });
-
-  return generator.default(ast2, {}, code2).code;
+  return generator.default(ast, {}, code).code;
 }
 
 // TODO: 
