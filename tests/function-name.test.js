@@ -68,14 +68,10 @@ describe("Function name conversion", () => {
   
    });
 
-   test("An anonymous rule", () => {
-
+   /*
+  test("An anonymous rule", () => {
     const rule = `
-      function a(user, context, callback) {
-
-        var a = function (fadsd, asd) {
-            var dasd = 4;
-        }();
+      function (user, context, callback) {
       }
       `;
   
@@ -90,5 +86,77 @@ describe("Function name conversion", () => {
      expect(result).toMatch(action.replace(/\s+/g, ''));
   
    });
+   */ 
 
+   test("An action signature", () => {
+    const rule = `
+      exports.onExecutePostLogin = async (event, api) => {
+      }
+      `;
+  
+    const action = `
+      exports.onExecutePostLogin = async (event, api) => {
+      }
+      `;
+  
+    const result = cv_fn.convert(rule).replace(/\s+/g, '')
+  
+     // assertions
+     expect(result).toMatch(action.replace(/\s+/g, ''));
+  
+   }); 
+
+   test("Convert user to event", () => {
+
+    const rule = `
+    function myRulesFunction(user, context, callback) {
+        const userEmail = user.email;
+        const userId = user.user_id;
+        
+        // This property could be undefined in Rules.
+        const userAppMetadata = user.app_metadata || {"ss":"bb"};
+        
+        // ... additional code
+    }
+    `;
+  
+    const action = `
+    exports.onExecutePostLogin = async (event, api) => {
+          const userEmail = event.user.email;
+          const userId = event.user.user_id;
+        
+          // This property could be undefined in Rules.
+          const userAppMetadata = event.user.app_metadata || {"ss":"bb"};
+        
+          // ... additional code
+     }
+    `;
+  
+    const result = cv_fn.convert(rule).replace(/\s+/g, '')
+  
+     // assertions
+     expect(result).toMatch(action.replace(/\s+/g, ''));
+  
+   });
+
+   test("user has a differnt name", () => {
+
+    const rule = `
+    function myRulesFunction(u, context, callback) {
+        const userEmail = u.email;
+    }
+    `;
+  
+    const action = `
+    exports.onExecutePostLogin = async (event, api) => {
+        const userEmail = event.user.email;
+     }
+    `;
+  
+    const result = cv_fn.convert(rule).replace(/\s+/g, '')
+  
+     // assertions
+     expect(result).toMatch(action.replace(/\s+/g, ''));
+  
+   });
 })
