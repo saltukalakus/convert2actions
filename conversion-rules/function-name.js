@@ -9,13 +9,6 @@ function convert(code) {
 
     traverse(ast, {
         FunctionDeclaration(path) {
-          if (path.node.id.name === "myRulesFunction") {
-            // Rename the function to "onExecutePostLogin"
-            path.node.id.name = "onExecutePostLogin";
-      
-            // Update the function parameters
-            // path.node.params = [t.identifier("event"), t.identifier("api")];
-      
             // Traverse the function's body and modify variable assignments
             path.traverse({
               VariableDeclaration(varPath) {
@@ -44,7 +37,6 @@ function convert(code) {
                 });
               },
             });
-          }
         },
       });
 

@@ -160,6 +160,30 @@ describe("Function name conversion", () => {
   
    });
 
+   test("user has a different name and has been assigned to a different name", () => {
+
+    const rule = `
+    function myRulesFunction(aa, context, callback) {
+        const newName = aa;
+        const userEmail = newName.email;
+    }
+    `;
+  
+    const action = `
+    exports.onExecutePostLogin = async (event, api) => {
+        const newName = event;
+        const userEmail = newName.email;
+     }
+    `;
+  
+    const result = cv_fn.convert(rule).replace(/\s+/g, '')
+  
+     // assertions
+     expect(result).toMatch(action.replace(/\s+/g, ''));
+  
+   });
+
+
    test("user has been assigned to a different name", () => {
 
     const rule = `
@@ -171,7 +195,7 @@ describe("Function name conversion", () => {
   
     const action = `
     exports.onExecutePostLogin = async (event, api) => {
-        const newName = event.user;
+        const newName = event;
         const userEmail = newName.email;
      }
     `;
@@ -182,4 +206,5 @@ describe("Function name conversion", () => {
      expect(result).toMatch(action.replace(/\s+/g, ''));
   
    });
+
 })
