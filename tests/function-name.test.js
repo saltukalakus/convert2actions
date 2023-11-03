@@ -3,7 +3,7 @@ const cv_fn = require ("../conversion-rules/function-name");
 
 describe("Function name conversion", () => {
 
- test("Basic rule", () => {
+ test("basic rule", () => {
 
   const rule = `
     function first(user, context, callback) {
@@ -22,7 +22,7 @@ describe("Function name conversion", () => {
 
  });
 
- test("Async rule", () => {
+ test("async rule", () => {
 
     const rule = `
       async function first(user, context, callback) {
@@ -41,7 +41,7 @@ describe("Function name conversion", () => {
   
    });
 
- test("A rule with a nested function", () => {
+ test("a rule with a nested function", () => {
 
     const rule = `
     function first(user, context, callback) {
@@ -88,7 +88,7 @@ describe("Function name conversion", () => {
    });
    */ 
 
-   test("An action signature", () => {
+   test("an action signature", () => {
     const rule = `
       exports.onExecutePostLogin = async (event, api) => {
       }
@@ -106,7 +106,7 @@ describe("Function name conversion", () => {
   
    }); 
 
-   test("Convert user to event", () => {
+   test("convert user to event", () => {
 
     const rule = `
     function myRulesFunction(user, context, callback) {
@@ -184,7 +184,7 @@ describe("Function name conversion", () => {
    });
 
 
-   test("user has been assigned to a different name", () => {
+   test("user is assigned to a different name", () => {
 
     const rule = `
     function myRulesFunction(user, context, callback) {
@@ -207,4 +207,33 @@ describe("Function name conversion", () => {
   
    });
 
+   test("inside function with the name user", () => {
+
+    const rule = `
+    function first(a, b) {
+        // Function body
+        function user(x, y, z) {
+            //console.log
+        }
+    }
+    `;
+  
+    const action = `
+    exports.onExecutePostLogin = async (event, api) => {
+        // Function body
+        function user(x, y, z) {
+            //console.log
+        }
+     }
+    `;
+  
+    const result = cv_fn.convert(rule).replace(/\s+/g, '')
+  
+     // assertions
+     expect(result).toMatch(action.replace(/\s+/g, ''));
+  
+   });
+
 })
+
+

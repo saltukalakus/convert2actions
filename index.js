@@ -1,13 +1,11 @@
 const cv_fn = require ("./conversion-rules/function-name");
 
-const code = `
-function first(a, b) {
-    // Function body
-    function two(x, y, z) {
-        //console.log
-    }
+const rule = `
+function myRulesFunction(user, context, callback) {
+    const newName = user;
+    const userEmail = newName.email;
 }
 `;
 
-console.log(cv_fn.convert(code));
+console.log(cv_fn.convert(rule));
 
