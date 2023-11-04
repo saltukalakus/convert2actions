@@ -12,6 +12,7 @@ describe("Function name conversion", () => {
 
   const action = `
     exports.onExecutePostLogin = async (event, api) => {
+        let user = event.user;
    };
   `;
 
@@ -31,6 +32,7 @@ describe("Function name conversion", () => {
   
     const action = `
       exports.onExecutePostLogin = async (event, api) => {
+        let user = event.user;
      };
     `;
   
@@ -54,6 +56,7 @@ describe("Function name conversion", () => {
   
     const action = `
       exports.onExecutePostLogin = async (event, api) => {
+        let user = event.user;
         // Function body
         function two(x, y, z) {
             //console.log
@@ -122,13 +125,14 @@ describe("Function name conversion", () => {
   
     const action = `
     exports.onExecutePostLogin = async (event, api) => {
-          const userEmail = event.user.email;
-          const userId = event.user.user_id;
-        
-          // This property could be undefined in Rules.
-          const userAppMetadata = event.user.app_metadata || {"ss":"bb"};
-        
-          // ... additional code
+         let user = event.user;
+         const userEmail = user.email;
+         const userId = user.user_id;
+         
+         // This property could be undefined in Rules.
+         const userAppMetadata = user.app_metadata || {"ss":"bb"};
+         
+         // ... additional code
      }
     `;
   
@@ -149,7 +153,8 @@ describe("Function name conversion", () => {
   
     const action = `
     exports.onExecutePostLogin = async (event, api) => {
-        const userEmail = event.user.email;
+        let u = event.user;
+        const userEmail = u.email;
      }
     `;
   
@@ -160,7 +165,7 @@ describe("Function name conversion", () => {
   
    });
 
-   test("user has a different name and has been assigned to a different name", () => {
+   test("user has a different name and has been assigned to a different variable", () => {
 
     const rule = `
     function myRulesFunction(aa, context, callback) {
@@ -171,7 +176,8 @@ describe("Function name conversion", () => {
   
     const action = `
     exports.onExecutePostLogin = async (event, api) => {
-        const newName = event;
+        let aa = event.user; 
+        const newName = aa;
         const userEmail = newName.email;
      }
     `;
@@ -184,7 +190,7 @@ describe("Function name conversion", () => {
    });
 
 
-   test("user is assigned to a different name", () => {
+   test("user is assigned to a different variable", () => {
 
     const rule = `
     function myRulesFunction(user, context, callback) {
@@ -195,7 +201,8 @@ describe("Function name conversion", () => {
   
     const action = `
     exports.onExecutePostLogin = async (event, api) => {
-        const newName = event;
+        let user = event.user;
+        const newName = user;
         const userEmail = newName.email;
      }
     `;
@@ -207,22 +214,23 @@ describe("Function name conversion", () => {
   
    });
 
-   test("inside function with the name user", () => {
+   test("an inside function with an attiribute named user", () => {
 
     const rule = `
-    function first(a, b) {
+    function first(user, context, callback) {
         // Function body
-        function user(x, y, z) {
-            //console.log
+        function x(user, y, z) {
+            console.log(user);
         }
     }
     `;
   
     const action = `
     exports.onExecutePostLogin = async (event, api) => {
+        let user = event.user;
         // Function body
-        function user(x, y, z) {
-            //console.log
+        function x(user, y, z) {
+            console.log(user);
         }
      }
     `;
@@ -233,6 +241,35 @@ describe("Function name conversion", () => {
      expect(result).toMatch(action.replace(/\s+/g, ''));
   
    });
+
+   /*
+   test("Avoid name collusion for user", () => {
+    const rule = `
+      function rule(user, context, callback) {
+        function user (a, b) {
+            console.log (a, b);
+        }
+        user("a", "b");
+      }
+      `;
+  
+    const action = `
+      exports.onExecutePostLogin = async (event, api) => {
+        let user = event.user;
+        function USER (a, b) {
+            console.log (a, b);
+        }
+        USER("a", "b");
+      }
+      `;
+  
+    const result = cv_fn.convert(rule).replace(/\s+/g, '')
+  
+     // assertions
+     expect(result).toMatch(action.replace(/\s+/g, ''));
+  
+   });
+*/
 
 })
 
