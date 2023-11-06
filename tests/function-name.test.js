@@ -97,10 +97,7 @@ describe("Function name conversion", () => {
       }
       `;
   
-    const action = `
-      exports.onExecutePostLogin = async (event, api) => {
-      }
-      `;
+    const action = `The rule should have three parameters. Please correct this and retry!`;
   
     const result = cv_fn.convert(rule).replace(/\s+/g, '')
   

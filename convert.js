@@ -6,6 +6,31 @@ const t = require("@babel/types");
 function convert(code) {
   const ast = parser.parse(code);
 
+  
+  let firstParamName, secondParamName, thirdParamName = "";
+  let paramCount = 0;
+
+  // Get function parameters;
+  traverse(ast, {
+    FunctionDeclaration(path) {
+      // Check if the function has a parent node
+      if (!path.parentPath.isProgram()) {
+        // Skip this function if it's not in the top-level of the program
+        return;
+      }
+      if (path.node.params.length === 3){
+        firstParamName = path.node.params[0].name;
+        secondParamName = path.node.params[1].name;
+        thirdParamName = path.node.params[2].name;
+      } 
+      paramCount = path.node.params.length;
+    },
+  });
+
+  if (paramCount !== 3){
+    return "The rule should have three parameters. Please correct this and retry!";
+  }
+
   // Convert callbacks
 
 
@@ -19,9 +44,6 @@ function convert(code) {
       }
 
       if (path.node.params.length > 0) {
-        // Extract the first parameter name
-        const firstParamName = path.node.params[0].name;
-
         // Create an assignment statement to convert the first parameter
         const assignmentStatement = t.variableDeclaration("let", [
           t.variableDeclarator(
