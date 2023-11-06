@@ -12,7 +12,6 @@ describe("Function name conversion", () => {
 
   const action = `
     exports.onExecutePostLogin = async (event, api) => {
-        let user = event.user;
    };
   `;
 
@@ -32,7 +31,6 @@ describe("Function name conversion", () => {
   
     const action = `
       exports.onExecutePostLogin = async (event, api) => {
-        let user = event.user;
      };
     `;
   
@@ -48,7 +46,7 @@ describe("Function name conversion", () => {
     const rule = `
     function first(user, context, callback) {
         // Function body
-        function two(x, y, z) {
+        function two(user, y, z) {
             //console.log
         }
     }
@@ -56,9 +54,8 @@ describe("Function name conversion", () => {
   
     const action = `
       exports.onExecutePostLogin = async (event, api) => {
-        let user = event.user;
         // Function body
-        function two(x, y, z) {
+        function two(user, y, z) {
             //console.log
         }
     }

@@ -12,7 +12,6 @@ describe("Function callback handling", () => {
    
      const action = `
        exports.onExecutePostLogin = async (event, api) => {
-           let user = event.user;
            return;
       };
      `;
@@ -33,7 +32,6 @@ describe("Function callback handling", () => {
     
       const action = `
         exports.onExecutePostLogin = async (event, api) => {
-            let user = event.user;
             return;
        };
       `;
@@ -47,15 +45,14 @@ describe("Function callback handling", () => {
 
      test("return sucess while callback is assigned to a different name", () => {
       const rule = `
-        function first(user, context, cb) {
-         let newcb = cb;
+        function first(user, context, callback) {
+         let newcb = callback;
          return newcb(null, user, context);
         }
       `;
     
       const action = `
         exports.onExecutePostLogin = async (event, api) => {
-            let user = event.user;
             return;
        };
       `;

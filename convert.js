@@ -2,6 +2,7 @@ const parser = require("@babel/parser");
 const generator = require("@babel/generator");
 const traverse = require("@babel/traverse").default;
 const t = require("@babel/types");
+const utils = require ("./utils");
 
 function convert(code) {
   const ast = parser.parse(code);
@@ -74,32 +75,34 @@ function convert(code) {
     },
   });
 
-  // Convert "user" attribute of a rule
-  traverse(ast, {
-    FunctionDeclaration(path) {
-      // Check if the function has a parent node
-      if (!path.parentPath.isProgram()) {
-        // Skip this function if it's not in the top-level of the program
-        return;
-      }
-
-      if (path.node.params.length > 0) {
-        // Create an assignment statement to convert the first parameter
-        const assignmentStatement = t.variableDeclaration("let", [
-          t.variableDeclarator(
-            t.identifier(firstParamName),
-            t.memberExpression(
-              t.identifier("event"),
-              t.identifier("user")
-            )
-          ),
-        ]);
-
-        // Insert the assignment statement at the beginning of the function's body
-        path.get("body").unshiftContainer("body", assignmentStatement);
-      }
-    },
-  });
+  // Convert "user" attribute of a rule if user is used
+  if (utils.isAttributeUsed(generator.default(ast, {}, code).code, firstParamName)) {
+    traverse(ast, {
+      FunctionDeclaration(path) {
+        // Check if the function has a parent node
+        if (!path.parentPath.isProgram()) {
+          // Skip this function if it's not in the top-level of the program
+          return;
+        }
+  
+        if (path.node.params.length > 0) {
+          // Create an assignment statement to convert the first parameter
+          const assignmentStatement = t.variableDeclaration("let", [
+            t.variableDeclarator(
+              t.identifier(firstParamName),
+              t.memberExpression(
+                t.identifier("event"),
+                t.identifier("user")
+              )
+            ),
+          ]);
+  
+          // Insert the assignment statement at the beginning of the function's body
+          path.get("body").unshiftContainer("body", assignmentStatement);
+        }
+      },
+    });
+  }
 
   // Convert "context" attribute of a rule that traslates to event
 
