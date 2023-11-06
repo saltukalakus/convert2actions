@@ -6,7 +6,10 @@ const t = require("@babel/types");
 function convert(code) {
   const ast = parser.parse(code);
 
-  // Convert user attribute of a rule
+  // Convert callbacks
+
+
+  // Convert "user" attribute of a rule
   traverse(ast, {
     FunctionDeclaration(path) {
       // Check if the function has a parent node
@@ -36,7 +39,10 @@ function convert(code) {
     },
   });
 
-  // Convert to action signature
+  // Convert "context" attribute of a rule that traslates to event
+
+
+  // Convert function signature
   traverse(ast, {
     FunctionDeclaration(path) {
         if (!path.parentPath.isProgram()) {

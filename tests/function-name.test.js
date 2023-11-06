@@ -1,4 +1,4 @@
-const cv_fn = require ("../conversion-rules/function-name");
+const cv_fn = require ("../convert");
 
 
 describe("Function name conversion", () => {
