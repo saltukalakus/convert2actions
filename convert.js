@@ -31,8 +31,48 @@ function convert(code) {
     return "The rule should have three parameters. Please correct this and retry!";
   }
 
-  // Convert callbacks
+  // Convert success callbacks
+  traverse(ast, {
+    ReturnStatement(path) {
+      if (path.node.argument) {
+        if (t.isCallExpression(path.node.argument) && t.isIdentifier(path.node.argument.callee) && path.node.argument.callee.name === thirdParamName) {
+          // Check if the call expression has the arguments (null, user, context)
+          if (
+            path.node.argument.arguments.length === 3 &&
+            t.isNullLiteral(path.node.argument.arguments[0]) &&
+            t.isIdentifier(path.node.argument.arguments[1]) &&
+            path.node.argument.arguments[1].name === "user" &&
+            t.isIdentifier(path.node.argument.arguments[2]) &&
+            path.node.argument.arguments[2].name === "context"
+          ) {
+            // Replace the ReturnStatement with an empty ReturnStatement
+            path.replaceWith(t.returnStatement());
+          }
+        }
+      }
+    },
+  });
 
+  // Convert success callback with callback assigned to a variable
+  traverse(ast, {
+    FunctionDeclaration(path) {
+      path.traverse({
+        VariableDeclaration(varPath) {
+          varPath.traverse({
+            VariableDeclarator(declaratorPath) {
+              if (
+                t.isIdentifier(declaratorPath.node.init) &&
+                declaratorPath.node.init.name === thirdParamName
+              ) {
+                // Replace the ReturnStatement with an empty ReturnStatement
+                path.get("body").replaceWith(t.blockStatement([t.returnStatement()]));
+              }
+            },
+          });
+        },
+      });
+    },
+  });
 
   // Convert "user" attribute of a rule
   traverse(ast, {
