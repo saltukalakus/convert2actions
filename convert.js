@@ -4,30 +4,6 @@ const traverse = require("@babel/traverse").default;
 const t = require("@babel/types");
 const utils = require ("./utils");
 
-  // Define the replacement function
-  function replaceCallbackWithAccessDeny(path) {
-    if (t.isCallExpression(path.node) && t.isIdentifier(path.node.callee, { name: "callback" })) {
-      if (path.node.arguments.length >= 1) {
-        const errorMessage = path.node.arguments[0];
-        let denyCall;
-
-        if (t.isNewExpression(errorMessage) && 
-             (t.isIdentifier(errorMessage.callee, { name: "Error" }) ||
-              t.isIdentifier(errorMessage.callee, { name: "UnauthorizedError" })
-             )
-           ) {
-          // Handle Error object with a message
-          const messageArg = errorMessage.arguments[0];
-          denyCall = t.callExpression(t.memberExpression(t.memberExpression(t.identifier("api"), t.identifier("access")), t.identifier("deny")), [messageArg]);
-        } else {
-          // Handle a simple message
-          denyCall = t.callExpression(t.memberExpression(t.memberExpression(t.identifier("api"), t.identifier("access")), t.identifier("deny")), [errorMessage]);
-        }
-
-        path.replaceWith(denyCall);
-      }
-    }
-  }
 
 function convert(code) {
   const ast = parser.parse(code);
@@ -98,8 +74,31 @@ function convert(code) {
     },
   });
 
+  // Handle failure callback functions
   traverse(ast, {
-    CallExpression: replaceCallbackWithAccessDeny,
+    CallExpression(path) {
+      if (t.isCallExpression(path.node) && t.isIdentifier(path.node.callee, { name: thirdParamName })) {
+        if (path.node.arguments.length >= 1) {
+          const errorMessage = path.node.arguments[0];
+          let denyCall;
+  
+          if (t.isNewExpression(errorMessage) && 
+               (t.isIdentifier(errorMessage.callee, { name: "Error" }) ||
+                t.isIdentifier(errorMessage.callee, { name: "UnauthorizedError" })
+               )
+             ) {
+            // Handle Error object with a message
+            const messageArg = errorMessage.arguments[0];
+            denyCall = t.callExpression(t.memberExpression(t.memberExpression(t.identifier("api"), t.identifier("access")), t.identifier("deny")), [messageArg]);
+          } else {
+            // Handle a simple message
+            denyCall = t.callExpression(t.memberExpression(t.memberExpression(t.identifier("api"), t.identifier("access")), t.identifier("deny")), [errorMessage]);
+          }
+  
+          path.replaceWith(denyCall);
+        }
+      }
+    }
   });
 
   // Convert "user" attribute of a rule if user is used
