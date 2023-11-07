@@ -75,6 +75,38 @@ function convert(code) {
     },
   });
 
+  // Convert failure callback
+  traverse(ast, {
+    FunctionDeclaration(path) {
+      path.traverse({
+        CallExpression(callPath) {
+          if (t.isIdentifier(callPath.node.callee, { name: "callback" })) {
+            const errorMessage = callPath.node.arguments[0];
+            if (t.isNewExpression(errorMessage) && errorMessage.callee.name === "Error") {
+              const errorArgument = errorMessage.arguments[0];
+              if (t.isStringLiteral(errorArgument)) {
+                const newActionAST = t.functionDeclaration(
+                  t.identifier(path.node.id.name),
+                  path.node.params,
+                  t.blockStatement([
+                    t.returnStatement(
+                      t.callExpression(
+                        t.memberExpression(t.memberExpression(t.identifier("api"), t.identifier("access")), t.identifier("deny")),
+                        [errorArgument]
+                      )
+                    ),
+                  ])
+                );
+
+                path.replaceWith(newActionAST);
+              }
+            }
+          }
+        },
+      });
+    },
+  });
+
   // Convert "user" attribute of a rule if user is used
   if (utils.isAttributeUsed(generator.default(ast, {}, code).code, firstParamName)) {
     traverse(ast, {
