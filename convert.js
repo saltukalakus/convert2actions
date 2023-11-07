@@ -4,6 +4,31 @@ const traverse = require("@babel/traverse").default;
 const t = require("@babel/types");
 const utils = require ("./utils");
 
+  // Define the replacement function
+  function replaceCallbackWithAccessDeny(path) {
+    if (t.isCallExpression(path.node) && t.isIdentifier(path.node.callee, { name: "callback" })) {
+      if (path.node.arguments.length >= 1) {
+        const errorMessage = path.node.arguments[0];
+        let denyCall;
+
+        if (t.isNewExpression(errorMessage) && 
+             (t.isIdentifier(errorMessage.callee, { name: "Error" }) ||
+              t.isIdentifier(errorMessage.callee, { name: "UnauthorizedError" })
+             )
+           ) {
+          // Handle Error object with a message
+          const messageArg = errorMessage.arguments[0];
+          denyCall = t.callExpression(t.memberExpression(t.memberExpression(t.identifier("api"), t.identifier("access")), t.identifier("deny")), [messageArg]);
+        } else {
+          // Handle a simple message
+          denyCall = t.callExpression(t.memberExpression(t.memberExpression(t.identifier("api"), t.identifier("access")), t.identifier("deny")), [errorMessage]);
+        }
+
+        path.replaceWith(denyCall);
+      }
+    }
+  }
+
 function convert(code) {
   const ast = parser.parse(code);
 
@@ -42,9 +67,7 @@ function convert(code) {
             path.node.argument.arguments.length === 3 &&
             t.isNullLiteral(path.node.argument.arguments[0]) &&
             t.isIdentifier(path.node.argument.arguments[1]) &&
-            path.node.argument.arguments[1].name === "user" &&
-            t.isIdentifier(path.node.argument.arguments[2]) &&
-            path.node.argument.arguments[2].name === "context"
+            t.isIdentifier(path.node.argument.arguments[2])
           ) {
             // Replace the ReturnStatement with an empty ReturnStatement
             path.replaceWith(t.returnStatement());
@@ -75,36 +98,8 @@ function convert(code) {
     },
   });
 
-  // Convert failure callback
   traverse(ast, {
-    FunctionDeclaration(path) {
-      path.traverse({
-        CallExpression(callPath) {
-          if (t.isIdentifier(callPath.node.callee, { name: "callback" })) {
-            const errorMessage = callPath.node.arguments[0];
-            if (t.isNewExpression(errorMessage) && errorMessage.callee.name === "Error") {
-              const errorArgument = errorMessage.arguments[0];
-              if (t.isStringLiteral(errorArgument)) {
-                const newActionAST = t.functionDeclaration(
-                  t.identifier(path.node.id.name),
-                  path.node.params,
-                  t.blockStatement([
-                    t.returnStatement(
-                      t.callExpression(
-                        t.memberExpression(t.memberExpression(t.identifier("api"), t.identifier("access")), t.identifier("deny")),
-                        [errorArgument]
-                      )
-                    ),
-                  ])
-                );
-
-                path.replaceWith(newActionAST);
-              }
-            }
-          }
-        },
-      });
-    },
+    CallExpression: replaceCallbackWithAccessDeny,
   });
 
   // Convert "user" attribute of a rule if user is used
