@@ -6,6 +6,8 @@ const utils = require ("./utils");
 
 
 function convert(code) {
+  try {
+
   const ast = parser.parse(code);
 
   
@@ -147,6 +149,16 @@ function convert(code) {
   });
 
   return generator.default(ast, {}, code).code;
+  }
+
+  catch (e) {
+    const log = `An exception occurred while inspecting the rule.
+Please check if the rule has the proper syntax. 
+Error: ${e.reasonCode} 
+Place: ${JSON.stringify(e.loc)}`;
+    console.log(log);
+    return (log);
+  }
 }
 
 // TODO: Anonymous functions are currently failing

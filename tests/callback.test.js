@@ -1,6 +1,6 @@
 const cv_fn = require ("../convert");
 
-describe("Function callback handling", () => {
+describe("Successful function callback handling", () => {
 
     test("return success", () => {
    
@@ -48,130 +48,18 @@ describe("Function callback handling", () => {
      test("return sucess while callback is assigned to a different name", () => {
       const rule = `
         function first(user, context, callback) {
-         let newcb = callback;
-         return newcb(null, user, context);
+          const aVariable = "abc";
+          let newcb = callback;
+          const bVariable = "def";
+          return newcb(null, user, context);
         }
       `;
     
       const action = `
         exports.onExecutePostLogin = async (event, api) => {
-            return;
-       };
-      `;
-    
-      const result = cv_fn.convert(rule).replace(/\s+/g, '')
-    
-       // assertions
-       expect(result).toMatch(action.replace(/\s+/g, ''));
-    
-     });
-
-     test("return failure for new Error", () => {
-   
-      const rule = `
-        function first(user, context, callback) {
-          const aRandomVariable = "abc";
-          const bRandomVariable = "def";
-          return callback(new Error("Failure message"));
-        }
-      `;
-    
-      const action = `
-        exports.onExecutePostLogin = async (event, api) => {
-          const aRandomVariable = "abc";
-          const bRandomVariable = "def";
-          return api.access.deny("Failure message");
-       };
-      `;
-    
-      const result = cv_fn.convert(rule).replace(/\s+/g, '')
-    
-       // assertions
-       expect(result).toMatch(action.replace(/\s+/g, ''));
-    
-     });
-
-     test("return failure for new UnauthorizedError", () => {
-   
-      const rule = `
-        function first(user, context, callback) {
-          return callback(new UnauthorizedError("Failure message"));
-        }
-      `;
-    
-      const action = `
-        exports.onExecutePostLogin = async (event, api) => {
-          return api.access.deny("Failure message");
-       };
-      `;
-    
-      const result = cv_fn.convert(rule).replace(/\s+/g, '')
-    
-       // assertions
-       expect(result).toMatch(action.replace(/\s+/g, ''));
-    
-     });
-
-     test("return failure with a different name for callback", () => {
-   
-      const rule = `
-        function first(user, context, cb) {
-          const aTestVariable = "Some variable";
-          return cb(new Error("Failure message"));
-        }
-      `;
-    
-      const action = `
-        exports.onExecutePostLogin = async (event, api) => {
-          const aTestVariable = "Some variable";
-          return api.access.deny("Failure message");
-       };
-      `;
-    
-      const result = cv_fn.convert(rule).replace(/\s+/g, '')
-    
-       // assertions
-       expect(result).toMatch(action.replace(/\s+/g, ''));
-    
-     });
-
-     test("return failure with a custom text", () => {
-   
-      const rule = `
-        function first(user, context, callback) {
-          const error = "Some error1";
-          return callback("Some error");
-        }
-      `;
-    
-      const action = `
-        exports.onExecutePostLogin = async (event, api) => {
-          const error = "Some error1";
-          return api.access.deny("Some error");
-       };
-      `;
-    
-      const result = cv_fn.convert(rule).replace(/\s+/g, '')
-    
-       // assertions
-       expect(result).toMatch(action.replace(/\s+/g, ''));
-    
-     });
-
-
-     test("return failure with a custom text as a variable", () => {
-   
-      const rule = `
-        function first(user, context, callback) {
-          const error = "Some error";
-          return callback(error);
-        }
-      `;
-    
-      const action = `
-        exports.onExecutePostLogin = async (event, api) => {
-          const error = "Some error";
-          return api.access.deny(error);
+          const aVariable = "abc";
+          const bVariable = "def";
+          return;
        };
       `;
     
@@ -182,3 +70,142 @@ describe("Function callback handling", () => {
     
      });
 })
+
+describe("Failed function callback handling", () => {
+  test("return failure for new Error", () => {
+   
+    const rule = `
+      function first(user, context, callback) {
+        const aRandomVariable = "abc";
+        const bRandomVariable = "def";
+        return callback(new Error("Failure message"));
+      }
+    `;
+  
+    const action = `
+      exports.onExecutePostLogin = async (event, api) => {
+        const aRandomVariable = "abc";
+        const bRandomVariable = "def";
+        return api.access.deny("Failure message");
+     };
+    `;
+  
+    const result = cv_fn.convert(rule).replace(/\s+/g, '')
+  
+     // assertions
+     expect(result).toMatch(action.replace(/\s+/g, ''));
+  
+   });
+  
+   test("return failure for new UnauthorizedError", () => {
+  
+    const rule = `
+      function first(user, context, callback) {
+        return callback(new UnauthorizedError("Failure message"));
+      }
+    `;
+  
+    const action = `
+      exports.onExecutePostLogin = async (event, api) => {
+        return api.access.deny("Failure message");
+     };
+    `;
+  
+    const result = cv_fn.convert(rule).replace(/\s+/g, '')
+  
+     // assertions
+     expect(result).toMatch(action.replace(/\s+/g, ''));
+  
+   });
+  
+   test("return failure with a different name for callback", () => {
+  
+    const rule = `
+      function first(user, context, cb) {
+        const aTestVariable = "Some variable";
+        return cb(new Error("Failure message"));
+      }
+    `;
+  
+    const action = `
+      exports.onExecutePostLogin = async (event, api) => {
+        const aTestVariable = "Some variable";
+        return api.access.deny("Failure message");
+     };
+    `;
+  
+    const result = cv_fn.convert(rule).replace(/\s+/g, '')
+  
+     // assertions
+     expect(result).toMatch(action.replace(/\s+/g, ''));
+  
+   });
+  
+   test("return failure with a custom text", () => {
+  
+    const rule = `
+      function first(user, context, callback) {
+        const error = "Some error1";
+        return callback("Some error");
+      }
+    `;
+  
+    const action = `
+      exports.onExecutePostLogin = async (event, api) => {
+        const error = "Some error1";
+        return api.access.deny("Some error");
+     };
+    `;
+  
+    const result = cv_fn.convert(rule).replace(/\s+/g, '')
+  
+     // assertions
+     expect(result).toMatch(action.replace(/\s+/g, ''));
+  
+   });
+  
+  
+   test("return failure with a custom text as a variable", () => {
+  
+    const rule = `
+      function first(user, context, callback) {
+        const error = "Some error";
+        return callback(error);
+      }
+    `;
+  
+    const action = `
+      exports.onExecutePostLogin = async (event, api) => {
+        const error = "Some error";
+        return api.access.deny(error);
+     };
+    `;
+  
+    const result = cv_fn.convert(rule).replace(/\s+/g, '')
+  
+     // assertions
+     expect(result).toMatch(action.replace(/\s+/g, ''));
+  
+   });
+  
+   test("return failure while callback is assigned to a different name", () => {
+    const rule = `
+      function first(user, context, callback) {
+       let newcb = callback;
+       return newcb(new Error("Failure message"));
+      }
+    `;
+  
+    const action = `
+      exports.onExecutePostLogin = async (event, api) => {
+          return "Failure message";
+     };
+    `;
+    const result = cv_fn.convert(rule).replace(/\s+/g, '')
+  
+    // assertions
+    expect(result).toMatch(action.replace(/\s+/g, ''));
+  
+  });
+})
+
