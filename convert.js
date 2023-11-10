@@ -55,27 +55,6 @@ function convert(code) {
     },
   });
 
-  // Convert success callback with callback assigned to a variable
-  traverse(ast, {
-    FunctionDeclaration(path) {
-      path.traverse({
-        VariableDeclaration(varPath) {
-          varPath.traverse({
-            VariableDeclarator(declaratorPath) {
-              if (
-                t.isIdentifier(declaratorPath.node.init) &&
-                declaratorPath.node.init.name === thirdParamName
-              ) {
-                // Replace the ReturnStatement with an empty ReturnStatement
-                path.get("body").replaceWith(t.blockStatement([t.returnStatement()]));
-              }
-            },
-          });
-        },
-      });
-    },
-  });
-
   // Handle failure callback functions
   traverse(ast, {
     CallExpression(path) {
