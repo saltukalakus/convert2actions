@@ -111,6 +111,16 @@ function convert(code) {
     });
   }
 
+  // Convert secrets
+  traverse(ast, {
+    Identifier(path) {
+      if (path.node.name === "configuration") {
+        // Update the identifier "configuration" to "event.secrets"
+        path.node.name = "event.secrets";
+      }
+    },
+  });
+
   // Convert "context" attribute of a rule that traslates to event
 
 
@@ -148,5 +158,8 @@ Place: ${JSON.stringify(e.loc)}`;
 // it will generate incorrect code due to declarations in the action.
 // Enable: "Avoid name collusion for user" test to fix
 
+// TODO: If a callback is assinged to a variable and then consumed the script
+// isn't able to convert it. Enable "return failure while callback is assigned to a different name" and
+// "return sucess while callback is assigned to a different name" tests
 
 module.exports.convert = convert;

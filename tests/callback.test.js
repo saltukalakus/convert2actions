@@ -44,6 +44,31 @@ describe("Successful function callback handling", () => {
        expect(result).toMatch(action.replace(/\s+/g, ''));
     
      });
+/*
+     test("return sucess while callback is assigned to a different name", () => {
+      const rule = `
+        function first(user, context, callback) {
+          const aVariable = "abc";
+          let newcb = callback;
+          const bVariable = "def";
+          return newcb(null, user, context);
+        }
+      `;
+    
+      const action = `
+        exports.onExecutePostLogin = async (event, api) => {
+          const aVariable = "abc";
+          const bVariable = "def";
+          return;
+       };
+      `;
+    
+      const result = cv_fn.convert(rule).replace(/\s+/g, '')
+    
+       // assertions
+       expect(result).toMatch(action.replace(/\s+/g, ''));
+    
+     }); */
 })
 
 describe("Failed function callback handling", () => {
@@ -162,5 +187,25 @@ describe("Failed function callback handling", () => {
      expect(result).toMatch(action.replace(/\s+/g, ''));
   
    });
+/*  
+   test("return failure while callback is assigned to a different name", () => {
+    const rule = `
+      function first(user, context, callback) {
+       let newcb = callback;
+       return newcb(new Error("Failure message"));
+      }
+    `;
+  
+    const action = `
+      exports.onExecutePostLogin = async (event, api) => {
+          return "Failure message";
+     };
+    `;
+    const result = cv_fn.convert(rule).replace(/\s+/g, '')
+  
+    // assertions
+    expect(result).toMatch(action.replace(/\s+/g, ''));
+  
+  }); */
 })
 
