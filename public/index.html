@@ -3,24 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code Converter</title>
+    <title>Auth0 Rule to Action Converter</title>
+    <!-- Load Monaco Editor's loader.js script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.27.0/min/vs/loader.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div>
-        <button id="convertButton">Convert Code</button>
+        <button id="convertButton"><b>Convert</b></button>
     </div>
-    <div id="container">
-        <div id="inputScreen">
-            <h2>Enter Auth0 Rule:</h2>
-            <textarea id="codeInput" rows="10" cols="50"></textarea><br>
-        </div>
+    <div style="display: flex; height: 90vh;">
+        <div id="editor1" style="flex: 1;"><b>Rule</b></div>
+        <div id="editor2" style="flex: 1;"><b>Action</b></div>
+    </div>
 
-        <div id="outputScreen">
-            <h2>Converted Action:</h2>
-            <textarea id="convertedCode" rows="10" cols="50"></textarea>
-        </div>
-    </div>
-    <script src="frontend.js"></script>
+    <!-- Load Monaco Editor's main.js script -->
+    <script>
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.27.0/min/vs' } });
+        require(['vs/editor/editor.main'], function () {
+            // Initialize Monaco Editor for the first editor
+            var editor1 = monaco.editor.create(document.getElementById('editor1'), {
+                value: `console.log('Please enter a valid Auth0 rule here and press "Convert" button!');`,
+                language: 'javascript',
+                theme: 'vs-dark', // Change theme if needed
+            });
+
+            // Initialize Monaco Editor for the second editor
+            var editor2 = monaco.editor.create(document.getElementById('editor2'), {
+                value: `console.log('The converted action code will appear here');`,
+                language: 'javascript',
+                theme: 'vs-dark', // Change theme if needed
+            });
+                // Convert button click event
+    document.getElementById('convertButton').addEventListener('click', function () {
+                const code = editor1.getValue();
+
+                // Make a POST request to the backend
+                fetch('/convert', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ code }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Display the converted code on the output screen
+            // convertedCode.textContent = data.code;
+            editor2.setValue(data.code);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle errors
+        });
+    });
+        });
+    </script>
 </body>
 </html>

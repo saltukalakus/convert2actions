@@ -1,48 +1,14 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    background-color: #f0f0f0;
+button {
+    width: 100px;
+    background-color: #4caf50;
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
 }
 
-#container {
-    text-align: center;
-    display: flex;
-    align-items: flex-start; /* Align items at the start of the container */
-    height: 100vh;
-}
-
-#inputScreen, #outputScreen {
-    width: 50%;
-    box-sizing: border-box;
-}
-
-#codeInput, #convertedCode {
-    width: calc(100% - 20px); /* Adjusted width calculation */
-    box-sizing: border-box;
-}
-
-#codeInput {
-    margin-bottom: 20px;
-}
-
-#convertButton {
-    align-self: flex-start; /* Align the button to the start of the container */
-    margin-right: 20px; /* Add right margin to the button */
-}
-
-@media (max-width: 600px) {
-    /* Adjust layout for smaller screens, e.g., mobile devices */
-    #container {
-        flex-direction: column;
-    }
-
-    #inputScreen, #outputScreen {
-        width: 100%;
-    }
-
-    #convertButton {
-        margin-right: 0; /* Remove right margin for smaller screens */
-    }
+button:hover {
+    background-color: #45a049;
 }
