@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Converter</title>
+    <style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background-color: #f0f0f0;
+}
+
+#container {
+    text-align: center;
+    display: flex;
+    flex-direction: column; /* Align children vertically */
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+#codeInput, #convertButton {
+    margin-bottom: 20px;
+}
+
+    </style>
+</head>
+<body>
+<div id="container">
+    <div id="inputScreen">
+        <h2>Enter JavaScript Code:</h2>
+        <textarea id="codeInput" rows="10" cols="50"></textarea><br>
+        <button id="convertButton">Convert Code</button>
+    </div>
+
+    <div id="outputScreen">
+        <h2>Converted Code:</h2>
+        <pre id="convertedCode"></pre>
+        <button onclick="goBack()">Go Back</button>
+    </div>
+</div>
+
+<script src="frontend.js"></script>
+</body>
+</html>
