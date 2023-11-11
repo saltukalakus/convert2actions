@@ -9,11 +9,40 @@ body {
 #container {
     text-align: center;
     display: flex;
-    justify-content: space-around;
-    align-items: center;
+    align-items: flex-start; /* Align items at the start of the container */
     height: 100vh;
 }
 
-#codeInput, #convertButton {
+#inputScreen, #outputScreen {
+    width: 50%;
+    box-sizing: border-box;
+}
+
+#codeInput, #convertedCode {
+    width: calc(100% - 20px); /* Adjusted width calculation */
+    box-sizing: border-box;
+}
+
+#codeInput {
     margin-bottom: 20px;
+}
+
+#convertButton {
+    align-self: flex-start; /* Align the button to the start of the container */
+    margin-right: 20px; /* Add right margin to the button */
+}
+
+@media (max-width: 600px) {
+    /* Adjust layout for smaller screens, e.g., mobile devices */
+    #container {
+        flex-direction: column;
+    }
+
+    #inputScreen, #outputScreen {
+        width: 100%;
+    }
+
+    #convertButton {
+        margin-right: 0; /* Remove right margin for smaller screens */
+    }
 }

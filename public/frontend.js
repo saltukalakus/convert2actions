@@ -23,10 +23,8 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Data received:', data);
-
             // Display the converted code on the output screen
-            convertedCode.textContent = data.convertedCode;
+            convertedCode.textContent = data.code;
         })
         .catch(error => {
             console.error('Error:', error);

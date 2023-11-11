@@ -1,6 +1,6 @@
-
 // Import the express module
 const express = require('express');
+const bodyParser = require('body-parser');
 const cv_fn = require ("./convert");
 
 // Create an instance of the express application
@@ -8,6 +8,12 @@ const app = express();
 
 const cors = require('cors');
 app.use(cors());
+
+// configure the app to use bodyParser()
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+app.use(bodyParser.json());
 
 // Serve static files from the 'public' folder
 app.use(express.static('public'));
@@ -18,26 +24,9 @@ app.get('/', (req, res) => {
 });
 
 app.post('/convert', (req, res) => {
-  console.log('POST request received');
-  // Your code for processing the request and sending a response
+  const code = cv_fn.convert(req.body.code);
+  res.end(JSON.stringify({ code }));
 });
-
-// Escapte characters: https://stackoverflow.com/a/5105195
-function escapeRegexChars(str) {
-    return str.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&')
-  }
-
-const rule = `
-function myRulesFunction(user, context, callback) \{
-   const userAppMetadata = user.app_metadata || \{\};
-   const namespace = "https://namespace/";
-
-   context.idToken[\`\$\{namespace\}/emp_id\`] = userAppMetadata.emp_id;
-
-   // ... additional code
-\}`;
-
-console.log(cv_fn.convert(rule));
 
 // Set the server to listen on a specific port
 const PORT = process.env.PORT || 3000;
