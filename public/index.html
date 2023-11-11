@@ -23,7 +23,7 @@
         require(['vs/editor/editor.main'], function () {
             // Initialize Monaco Editor for the first editor
             var editor1 = monaco.editor.create(document.getElementById('editor1'), {
-                value: `console.log('Please enter a valid Auth0 rule here and press "Convert" button!');`,
+                value: `console.log('Please enter a valid Auth0 rule here and press "Convert"!');`,
                 language: 'javascript',
                 theme: 'vs-dark', // Change theme if needed
             });
@@ -34,29 +34,28 @@
                 language: 'javascript',
                 theme: 'vs-dark', // Change theme if needed
             });
-                // Convert button click event
-    document.getElementById('convertButton').addEventListener('click', function () {
-                const code = editor1.getValue();
+            
+            // Convert button click event
+            document.getElementById('convertButton').addEventListener('click', function () {
+              const code = editor1.getValue();
 
-                // Make a POST request to the backend
-                fetch('/convert', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ code }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Display the converted code on the output screen
-            // convertedCode.textContent = data.code;
-            editor2.setValue(data.code);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            // Handle errors
-        });
-    });
+              // Make a POST request to the backend
+              fetch('/convert', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code }),
+              })
+              .then(response => response.json())
+              .then(data => {
+                editor2.setValue(data.code);
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                // Handle errors
+              });
+            });
         });
     </script>
 </body>
