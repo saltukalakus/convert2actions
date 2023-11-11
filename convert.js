@@ -4,12 +4,30 @@ const traverse = require("@babel/traverse").default;
 const t = require("@babel/types");
 const utils = require ("./utils");
 
+function getKeyFromAssignment(path) {
+  if (path.node.left.property.value) return t.stringLiteral(path.node.left.property.value) ;
+  if (path.node.left.property.name) return t.identifier(path.node.left.property.name);
+  return path.node.left.property;
+}
+
+function getValueFromAssignment(path) {
+  return path.node.right;
+}
 
 function convert(code) {
   try {
-
+    parser.parse(code);
+  }
+  catch (e) {
+      const log = `An exception occurred while inspecting the rule.
+  Please check if the rule has the proper syntax. 
+  Error: ${e.reasonCode} 
+  Place: ${JSON.stringify(e.loc)}`;
+      console.log(log);
+      return (log);
+  }
+  
   const ast = parser.parse(code);
-
   
   let firstParamName, secondParamName, thirdParamName = "";
   let paramCount = 0;
@@ -34,6 +52,35 @@ function convert(code) {
   if (paramCount !== 3){
     return "The rule should have three parameters. Please correct this and retry!";
   }
+
+  // Convert custom claims
+  traverse(ast, {
+    AssignmentExpression(path) {
+        const key = getKeyFromAssignment(path);
+        const value = getValueFromAssignment(path);
+        if (path.node.left.object.object.name === secondParamName &&
+        path.node.left.object.property.name === "idToken") {
+          path.replaceWith(
+            t.expressionStatement(
+                t.callExpression(
+                    t.memberExpression(t.identifier("api.idToken"), t.identifier("setCustomClaim")),
+                    [key, value]
+                )
+            )
+          );
+       } else if (path.node.left.object.object.name === secondParamName &&
+       path.node.left.object.property.name === "accessToken") {
+        path.replaceWith(
+          t.expressionStatement(
+              t.callExpression(
+                  t.memberExpression(t.identifier("api.accessToken"), t.identifier("setCustomClaim")),
+                  [key, value]
+              )
+          )
+        );
+       }
+    },
+ });
 
   // Convert success callbacks
   traverse(ast, {
@@ -138,16 +185,7 @@ function convert(code) {
   });
 
   return generator.default(ast, {}, code).code;
-  }
 
-  catch (e) {
-    const log = `An exception occurred while inspecting the rule.
-Please check if the rule has the proper syntax. 
-Error: ${e.reasonCode} 
-Place: ${JSON.stringify(e.loc)}`;
-    console.log(log);
-    return (log);
-  }
 }
 
 // TODO: Anonymous functions are currently failing
