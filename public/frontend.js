@@ -34,9 +34,3 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
-
-// Function to go back to the input screen
-function goBack() {
-    document.getElementById('inputScreen').style.display = 'block';
-    document.getElementById('outputScreen').style.display = 'none';
-}
