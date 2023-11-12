@@ -4,6 +4,34 @@ const traverse = require("@babel/traverse").default;
 const t = require("@babel/types");
 const utils = require ("./utils");
 
+function isContextMultifactorAssignment(path) {
+  return (
+      t.isMemberExpression(path.node.left) &&
+      t.isIdentifier(path.node.left.object, { name: "context" }) &&
+      t.isIdentifier(path.node.left.property, { name: "multifactor" })
+  );
+}
+
+function getPropertyValue(objectExpression, propertyName) {
+  const property = objectExpression.properties.find(
+      (prop) => t.isObjectProperty(prop) && t.isIdentifier(prop.key, { name: propertyName })
+  );
+
+  return property ? property.value.value : null;
+}
+
+function getObjectProperties(objectExpression) {
+  return objectExpression.properties
+      .filter((prop) => t.isObjectProperty(prop))
+      .map((prop) => t.objectProperty(prop.key, prop.value));
+}
+
+function getObjectPropertiesExcludedOne(objectExpression, exclude) {
+  return objectExpression.properties
+      .filter((prop) => (t.isObjectProperty(prop) && prop.key.name !== exclude))
+      .map((prop) => t.objectProperty(prop.key, prop.value));
+}
+
 function getKeyFromAssignment(path) {
   if (path.node.left.property.value) return t.stringLiteral(path.node.left.property.value) ;
   if (path.node.left.property.name) return t.identifier(path.node.left.property.name);
@@ -53,12 +81,37 @@ function convert(code) {
     return "The rule should have three parameters. Please correct this and retry!";
   }
 
+  // Convert multi-factor
+  traverse(ast, {
+    AssignmentExpression(path) {
+        if (isContextMultifactorAssignment(path)) {
+            const value = getValueFromAssignment(path);
+
+            if (t.isObjectExpression(value)) {
+                const options = getObjectPropertiesExcludedOne(value, "provider");
+
+                // Replace with api.multifactor.enable
+                path.replaceWith(
+                    t.expressionStatement(
+                        t.callExpression(
+                            t.memberExpression(t.identifier("api"), t.identifier("multifactor.enable")),
+                            [t.stringLiteral("any"), t.objectExpression(options)]
+                        )
+                    )
+                );
+            }
+        }
+    },
+  });
+
+
   // Convert custom claims
   traverse(ast, {
     AssignmentExpression(path) {
         const key = getKeyFromAssignment(path);
         const value = getValueFromAssignment(path);
-        if (path.node.left.object.object.name === secondParamName &&
+        if (path.node.left.object.object && 
+        path.node.left.object.object.name === secondParamName &&
         path.node.left.object.property.name === "idToken") {
           path.replaceWith(
             t.expressionStatement(
@@ -68,7 +121,8 @@ function convert(code) {
                 )
             )
           );
-       } else if (path.node.left.object.object.name === secondParamName &&
+       } else if ( path.node.left.object.object &&
+       path.node.left.object.object.name === secondParamName &&
        path.node.left.object.property.name === "accessToken") {
         path.replaceWith(
           t.expressionStatement(
