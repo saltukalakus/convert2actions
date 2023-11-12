@@ -63,4 +63,32 @@ describe("Multi-factor", () => {
    
     });
 
+    test("convert ctx.multifactor to api.multifactor.enable simplified", () => {
+ 
+        const rule = `
+        function myRulesFunction(user, ctx, callback) {
+            ctx.multifactor = { 
+                provider: "any", 
+                allowRememberBrowser: false,
+            };
+
+           // ... additional code
+       }
+        `;
+      
+        const action = `
+        exports.onExecutePostLogin = async (event, api) => {
+            api.multifactor.enable("any", { allowRememberBrowser: false });
+       
+           // ... additional code
+       };
+        `;
+      
+        const result = cv_fn.convert(rule).replace(/\s+/g, '')
+      
+         // assertions
+         expect(result).toMatch(action.replace(/\s+/g, ''));
+      
+       });
+
  })

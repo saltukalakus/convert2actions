@@ -4,10 +4,10 @@ const traverse = require("@babel/traverse").default;
 const t = require("@babel/types");
 const utils = require ("./utils");
 
-function isContextMultifactorAssignment(path) {
+function isContextMultifactorAssignment(path, secondParam) {
   return (
       t.isMemberExpression(path.node.left) &&
-      t.isIdentifier(path.node.left.object, { name: "context" }) &&
+      t.isIdentifier(path.node.left.object, { name: secondParam}) &&
       t.isIdentifier(path.node.left.property, { name: "multifactor" })
   );
 }
@@ -84,7 +84,7 @@ function convert(code) {
   // Convert multi-factor
   traverse(ast, {
     AssignmentExpression(path) {
-        if (isContextMultifactorAssignment(path)) {
+        if (isContextMultifactorAssignment(path, secondParamName)) {
             const value = getValueFromAssignment(path);
 
             if (t.isObjectExpression(value)) {
