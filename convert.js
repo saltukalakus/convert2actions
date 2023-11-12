@@ -89,13 +89,14 @@ function convert(code) {
 
             if (t.isObjectExpression(value)) {
                 const options = getObjectPropertiesExcludedOne(value, "provider");
+                const mfaType = getPropertyValue(value, "provider");
 
                 // Replace with api.multifactor.enable
                 path.replaceWith(
                     t.expressionStatement(
                         t.callExpression(
                             t.memberExpression(t.identifier("api"), t.identifier("multifactor.enable")),
-                            [t.stringLiteral("any"), t.objectExpression(options)]
+                            [t.stringLiteral(mfaType), t.objectExpression(options)]
                         )
                     )
                 );
