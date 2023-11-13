@@ -15,7 +15,7 @@ A static code conversion tool to convert Auth0 Rules/Hooks to Auth0 Actions
 > npm test
 ```
 
-## Support Features
+## Supported Features
 
 # Rules to Actions
 
