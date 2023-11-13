@@ -1,7 +1,7 @@
 {
-  "name": "rules2actions",
-  "version": "1.0.0",
-  "description": "Convert Auth0 rules to actions.",
+  "name": "convert2actions",
+  "version": "0.0.1",
+  "description": "Convert Auth0 rules/hooks to actions.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -9,20 +9,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/saltukalakus/rules2actions.git"
+    "url": "git+https://github.com/saltukalakus/convert2actions.git"
   },
   "keywords": [
     "Auth0",
     "rules",
-    "Auth0",
+    "hooks",
     "actions"
   ],
-  "author": "ChatGPT & Saltuk Alakus",
+  "authors": "ChatGPT & Saltuk Alakus",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/saltukalakus/rules2actions/issues"
+    "url": "https://github.com/saltukalakus/convert2actions/issues"
   },
-  "homepage": "https://github.com/saltukalakus/rules2actions#readme",
+  "homepage": "https://github.com/saltukalakus/convert2actions#readme",
   "dependencies": {
     "@babel/generator": "^7.23.0",
     "@babel/parser": "^7.23.0",
