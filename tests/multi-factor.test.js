@@ -157,4 +157,31 @@ describe("Multi-factor", () => {
          expect(result).toMatch(action.replace(/\s+/g, ''));
       
        });
+
+       test("context.multifactor witout provider", () => {
+ 
+        const rule = `
+        function myRulesFunction(user, context, callback) {
+            context.multifactor = { 
+                allowRememberBrowser: false,
+            };
+
+           // ... additional code
+       }
+        `;
+      
+        const action = `
+        exports.onExecutePostLogin = async (event, api) => {
+            api.multifactor.enable("UNDEFINED", { allowRememberBrowser: false });
+       
+           // ... additional code
+       };
+        `;
+      
+        const result = cv_fn.convert(rule).replace(/\s+/g, '')
+      
+         // assertions
+         expect(result).toMatch(action.replace(/\s+/g, ''));
+      
+       });
  })

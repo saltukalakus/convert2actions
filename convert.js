@@ -59,6 +59,7 @@ function convert(code) {
   
   let firstParamName, secondParamName, thirdParamName = "";
   let paramCount = 0;
+  let warnings = "";
 
   // Get function parameters;
   traverse(ast, {
@@ -90,16 +91,34 @@ function convert(code) {
             if (t.isObjectExpression(value)) {
                 const options = getObjectPropertiesExcludedOne(value, "provider");
                 const mfaType = getPropertyValue(value, "provider");
-
-                // Replace with api.multifactor.enable
-                path.replaceWith(
+                
+                if (mfaType) {
+                   // Replace with api.multifactor.enable
+                  path.replaceWith(
                     t.expressionStatement(
-                        t.callExpression(
-                            t.memberExpression(t.identifier("api"), t.identifier("multifactor.enable")),
-                            [t.stringLiteral(mfaType), t.objectExpression(options)]
-                        )
+                      t.callExpression(
+                        t.memberExpression(t.identifier("api"), t.identifier("multifactor.enable")),
+                          [t.stringLiteral(mfaType), t.objectExpression(options)]
+                      )
                     )
-                );
+                  );
+                } else {
+                  path.replaceWith(
+                    t.expressionStatement(
+                      t.callExpression(
+                        t.memberExpression(t.identifier("api"), t.identifier("multifactor.enable")),
+                          [t.stringLiteral("UNDEFINED"), t.objectExpression(options)]
+                      )
+                    )
+                  );
+                  warnings += `Provider attribute is obligatory for context.multifactor object. Please correct the rule by adding 
+                               the provider attribute. 
+                               E.g.
+                               context.multifactor = { 
+                                provider: "none"
+                               };`;
+                }
+
             }
         }
     },
