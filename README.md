@@ -1,19 +1,19 @@
 # convert2actions
 
-A static code conversion tool to convert from Auth0 Rules/Hooks to Auth0 Actions 
+A static code conversion tool to convert Auth0 Rules/Hooks to Auth0 Actions 
 
 ## How to run the app locally
 
-`
+```
 > npm install
 > npm run
-`
+```
 
 ## Testing 
 
-`
+```
 > npm test
-`
+```
 
 ## Support Features
 
