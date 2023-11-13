@@ -25,6 +25,29 @@ describe("Successful function callback handling", () => {
    
     });
 
+    test("return success without explicit return", () => {
+   
+      const rule = `
+        function first(user, context, callback) {
+        const aRandomVariable = "abc";
+        callback(null, user, context);
+        }
+      `;
+    
+      const action = `
+        exports.onExecutePostLogin = async (event, api) => {
+         const aRandomVariable = "abc";
+         return;
+       };
+      `;
+    
+      const result = cv_fn.convert(rule).replace(/\s+/g, '')
+    
+       // assertions
+       expect(result).toMatch(action.replace(/\s+/g, ''));
+    
+     });
+
     test("return sucess with a different name for callback ", () => {
       const rule = `
         function first(usr, ctx, cb) {
@@ -187,6 +210,28 @@ describe("Failed function callback handling", () => {
      expect(result).toMatch(action.replace(/\s+/g, ''));
   
    });
+
+   test("return failure for new UnauthorizedError without explicit return", () => {
+  
+    const rule = `
+      function first(user, context, callback) {
+        callback(new UnauthorizedError("Failure message"));
+      }
+    `;
+  
+    const action = `
+      exports.onExecutePostLogin = async (event, api) => {
+        api.access.deny("Failure message");
+     };
+    `;
+  
+    const result = cv_fn.convert(rule).replace(/\s+/g, '')
+  
+     // assertions
+     expect(result).toMatch(action.replace(/\s+/g, ''));
+  
+   });
+
 /*  
    test("return failure while callback is assigned to a different name", () => {
     const rule = `

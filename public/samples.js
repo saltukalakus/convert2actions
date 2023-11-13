@@ -4,7 +4,7 @@ const sampleCodes = [
 {
   name: 'Rule 1',
   code: `function rule1(user, context, callback) {
-  return callback(null, user, context);
+  callback(null, user, context);
 }
 `,
 },

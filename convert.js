@@ -156,6 +156,7 @@ function convert(code) {
     },
  });
 
+
   // Convert success callbacks
   traverse(ast, {
     ReturnStatement(path) {
@@ -180,7 +181,8 @@ function convert(code) {
   traverse(ast, {
     CallExpression(path) {
       if (t.isCallExpression(path.node) && t.isIdentifier(path.node.callee, { name: thirdParamName })) {
-        if (path.node.arguments.length >= 1) {
+        if ((path.node.arguments.length >= 1) &&
+         !t.isNullLiteral(path.node.arguments[0])){
           const errorMessage = path.node.arguments[0];
           let denyCall;
   
@@ -198,6 +200,8 @@ function convert(code) {
           }
   
           path.replaceWith(denyCall);
+        } else {
+            path.replaceWith(t.identifier("return"));
         }
       }
     }
