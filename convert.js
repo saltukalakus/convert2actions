@@ -56,7 +56,8 @@ function convert(code) {
   }
   
   const ast = parser.parse(code);
-  
+
+
   let firstParamName, secondParamName, thirdParamName = "";
   let paramCount = 0;
   let warnings = "";
@@ -81,6 +82,80 @@ function convert(code) {
   if (paramCount !== 3){
     return "The rule should have three parameters. Please correct this and retry!";
   }
+
+  /* Get the then block and execute for metadata update
+     E.g. 
+     function myRulesFunction(user, context, callback) {
+        auth0.users
+        .updateAppMetadata(user.user_id, user.app_metadata)
+        .then(() => {
+          console.log('hello');
+          callback(null, user, context);
+        })
+        .catch((err) => callback(err));
+        // ... additional code
+      }
+    is converted to;
+      function myRulesFunction(user, context, callback) {
+        auth0.users
+        .updateAppMetadata(user.user_id, user.app_metadata)
+        .then(() => {
+          console.log('hello');
+          callback(null, user, context);
+        })
+      }
+*/
+
+// remove catch in metadata update
+traverse(ast, {
+  CallExpression(path) {
+      const { callee } = path.node;
+      if (t.isIdentifier(callee.property, { name: 'catch' }) && 
+          callee.type === 'MemberExpression' && 
+          callee.property.type === 'Identifier') {
+          // Check if the callee is a function call and remove it
+          if (t.isCallExpression(callee.object)) {
+              path.replaceWith(callee.object);
+              path.stop(); 
+          }
+      }
+  },
+});
+
+  /* Get the then block and execute for metadata update
+     E.g. 
+     function myRulesFunction(user, context, callback) {
+        auth0.users
+        .updateAppMetadata(user.user_id, user.app_metadata)
+        .then(() => {
+          console.log('hello');
+          callback(null, user, context);
+        })
+        .catch((err) => callback(err));
+        // ... additional code
+      }
+    is converted to;
+      function myRulesFunction(user, context, callback) {
+          (()=>{console.log("Hello");
+          return;
+          })();
+      }
+*/
+
+// Extract the function in the then block
+traverse(ast, {
+  CallExpression(path) {
+    const { callee } = path.node;
+    if (
+      t.isIdentifier(callee.property, { name: 'then' })
+    ){
+      const arrowFunction = path.node.arguments[0].body;
+      const arrowFunctionExpression = t.arrowFunctionExpression([], arrowFunction);
+      const arrowFunctionStatement = t.expressionStatement(t.callExpression(arrowFunctionExpression, []));
+      path.replaceWith(arrowFunctionStatement);
+    }
+  },
+});
 
   // Convert multi-factor
   traverse(ast, {
@@ -208,7 +283,7 @@ function convert(code) {
   });
 
   // Convert "user" attribute of a rule if user is used
-  if (utils.isAttributeUsed(generator.default(ast, {}, code).code, firstParamName)) {
+  if (utils.isAttributeUsed(ast, firstParamName)) {
     traverse(ast, {
       FunctionDeclaration(path) {
         // Check if the function has a parent node
@@ -248,22 +323,32 @@ function convert(code) {
 
   // Convert "context" attribute of a rule that traslates to event
 
-
   // Convert function signature
   traverse(ast, {
     FunctionDeclaration(path) {
-        if (!path.parentPath.isProgram()) {
-          // Skip this function if it's not in the top-level of the program
-          return;
-        }
-        const newCode = `exports.onExecutePostLogin = async (event, api) => ${generator.default(path.node.body).code || '{}'};`;
-        const newAST = parser.parse(newCode);
-        path.replaceWith(newAST.program.body[0]);
+      if (!path.parentPath.isProgram()) {
+        // Skip this function if it's not in the top-level of the program
+        return;
+      }   
+      if (path.node.id) {
+          // Replace the entire function declaration with an assignment to exports
+          path.replaceWith(
+              t.assignmentExpression(
+                  '=',
+                  t.memberExpression(t.identifier('exports'), t.identifier('onExecutePostLogin')),
+                  t.arrowFunctionExpression(
+                      [t.identifier('event'), t.identifier('api')],
+                      t.blockStatement(path.node.body.body),
+                      true // Add async to the arrow function
+                  )
+              )
+          );
+          path.stop(); // Stop traversing
+      }
     },
   });
 
   return generator.default(ast, {}, code).code;
-
 }
 
 // TODO: Anonymous functions are currently failing
@@ -278,4 +363,15 @@ function convert(code) {
 // isn't able to convert it. Enable "return failure while callback is assigned to a different name" and
 // "return sucess while callback is assigned to a different name" tests
 
+
+// TODO: Limitation         
+//    auth0.users
+//            .updateAppMetadata(user.user_id, user.app_metadata) 
+//            .then(() => callback(null, user, context))
+//            .catch((err) => callback(err));
+//
+//  then block converts callback(null, user, context)) to return leading invalid JS code
+//            (()=> return)();
+//            correct converstion:
+//            (()=> {return;})();
 module.exports.convert = convert;

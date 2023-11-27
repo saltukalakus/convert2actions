@@ -1,8 +1,8 @@
 const parser = require("@babel/parser");
 const traverse = require("@babel/traverse").default;
 
-function isAttributeUsed(code, attributeName) {
-    const ast = parser.parse(code);
+function isAttributeUsed(ast, attributeName) {
+    //const ast = parser.parse(code);
   
     let attributeUsed = false;
   
@@ -24,6 +24,5 @@ function isAttributeUsed(code, attributeName) {
   
     return attributeUsed;
   }
-
 
 module.exports.isAttributeUsed = isAttributeUsed;
