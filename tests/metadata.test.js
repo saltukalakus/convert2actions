@@ -49,8 +49,8 @@ describe("Metadata conversion", () => {
         user.app_metadata = user.app_metadata || {}; 
         user.app_metadata.roles = user.app_metadata.roles || [];
         user.app_metadata.roles.push("administrator"); 
-        api.user.setAppMetadata("roles", user.app_metadata.roles);
         (()=> return)();
+        api.user.setAppMetadata("roles", user.app_metadata.roles);
     };
      `;
    

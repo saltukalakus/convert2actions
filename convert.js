@@ -157,6 +157,46 @@ traverse(ast, {
   },
 });
 
+// Find the updated app_metadata and add api.user.setAppMetadata function call
+let attributeName;
+let identifierName = [];
+
+traverse(ast, {
+    MemberExpression(path) {
+        if (t.isIdentifier(path.node.property) && 
+            t.isIdentifier(path.parent.property) &&
+            path.node.property.name === "app_metadata") {
+            identifierName = [];
+            attributeName = path.parent.property.name;
+            identifierName.unshift(attributeName);
+            identifierName.unshift("app_metadata");
+            if (path.node.object.name) 
+            identifierName.unshift(path.node.object.name);
+        }  else if (identifierName.length > 0) {
+            identifierName.unshift(path.node.property.name);
+            if (path.node.object.name) 
+            identifierName.unshift(path.node.object.name);
+        }
+    },
+});
+
+const identifierString = identifierName.join('.');
+
+
+if (attributeName) {
+    const setAppMetadataCall = t.expressionStatement(
+        t.callExpression(
+            t.memberExpression(t.identifier('api.user'), t.identifier('setAppMetadata')),
+            [
+                t.stringLiteral(attributeName),
+                t.identifier(identifierString),
+            ]
+        )
+    );
+
+    ast.program.body.push(setAppMetadataCall);
+}
+
   // Convert multi-factor
   traverse(ast, {
     AssignmentExpression(path) {
