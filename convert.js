@@ -182,20 +182,28 @@ traverse(ast, {
 
 const identifierString = identifierName.join('.');
 
+traverse(ast, {
+  FunctionDeclaration(path) {
+    if (!path.parentPath.isProgram()) {
+      // Skip this function if it's not in the top-level of the program
+      return;
+    }   
+    if (attributeName) {
+      const setAppMetadataCall = t.expressionStatement(
+          t.callExpression(
+              t.memberExpression(t.identifier('api.user'), t.identifier('setAppMetadata')),
+              [
+                  t.stringLiteral(attributeName),
+                  t.identifier(identifierString),
+              ]
+          )
+      );
+  
+      path.get('body').push(setAppMetadataCall);
+    }
+  },
+});
 
-if (attributeName) {
-    const setAppMetadataCall = t.expressionStatement(
-        t.callExpression(
-            t.memberExpression(t.identifier('api.user'), t.identifier('setAppMetadata')),
-            [
-                t.stringLiteral(attributeName),
-                t.identifier(identifierString),
-            ]
-        )
-    );
-
-    ast.program.body.push(setAppMetadataCall);
-}
 
   // Convert multi-factor
   traverse(ast, {

@@ -29,7 +29,9 @@
     "@babel/traverse": "^7.23.2",
     "@babel/types": "^7.23.0",
     "cors": "^2.8.5",
-    "express": "^4.18.2"
+    "dotenv": "^16.4.1",
+    "express": "^4.18.2",
+    "express-openid-connect": "^2.17.1"
   },
   "devDependencies": {
     "jest": "^29.7.0"

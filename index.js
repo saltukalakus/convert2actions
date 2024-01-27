@@ -2,9 +2,29 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cv_fn = require ("./convert");
+const { auth } = require('express-openid-connect');
+const { requiresAuth } = require('express-openid-connect');
+require('dotenv').config();
+
+// Authentication configuration
+const config = {
+  authRequired: true,
+  auth0Logout: true,
+  authorizationParams: {
+    response_type: 'code',
+    scope: 'openid profile, offline_access',
+    clientID: process.env.CLIENT_ID,
+  },
+  issuerBaseURL: process.env.ISSUER_BASE_URL,
+  baseURL: process.env.APPLICATION_ROOT_URL,
+};
+
 
 // Create an instance of the express application
 const app = express();
+
+// Insert Auth
+app.use(auth(config));
 
 const cors = require('cors');
 app.use(cors());
@@ -19,11 +39,11 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 // Your existing route handling code
-app.get('/', (req, res) => {
+app.get('/', requiresAuth(), (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
-app.post('/convert', (req, res) => {
+app.post('/convert', requiresAuth(), (req, res) => {
   const code = cv_fn.convert(req.body.code);
   res.end(JSON.stringify({ code }));
 });
