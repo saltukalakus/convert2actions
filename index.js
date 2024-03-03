@@ -1,7 +1,6 @@
 // Import the express module
 const express = require('express');
 const bodyParser = require('body-parser');
-const cv_fn = require ("./convert");
 const { auth } = require('express-openid-connect');
 const { requiresAuth } = require('express-openid-connect');
 require('dotenv').config();
@@ -16,7 +15,7 @@ async function callChatGPT(message) {
     const response = await axios.post(
       endpoint,
       {
-        model: 'gpt-4',  // Specify the desired model
+        model: 'gpt-4-0125-preview',  // Specify the desired model
         messages: [
           {
             role: 'system',
@@ -82,7 +81,7 @@ app.get('/', requiresAuth(), (req, res) => {
 });
 
 app.post('/convert', requiresAuth(), (req, res) => {
-  const code = cv_fn.convert(req.body.code);
+  const code = req.body.code;
   const userMessage = `Please convert this code to an Auth0 action and only reply back the corrected code in a javascript block "${code}"`;
   //res.end(JSON.stringify({ code }));
   callChatGPT(userMessage)
