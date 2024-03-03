@@ -5,6 +5,44 @@ const cv_fn = require ("./convert");
 const { auth } = require('express-openid-connect');
 const { requiresAuth } = require('express-openid-connect');
 require('dotenv').config();
+const axios = require('axios');
+
+const apiKey = process.env.CHATGPT_TOKEN;  
+const endpoint = process.env.CHATGPT_ENDPOINT;  
+
+
+async function callChatGPT(message) {
+  try {
+    const response = await axios.post(
+      endpoint,
+      {
+        model: 'gpt-4',  // Specify the desired model
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a helpful assistant.',
+          },
+          {
+            role: 'user',
+            content: message,
+          },
+        ],
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+      }
+    );
+
+    // Extract and return the assistant's reply
+    return response.data.choices[0].message.content;
+  } catch (error) {
+    console.error('Error calling ChatGPT API:', error.message);
+    throw error;
+  }
+}
 
 // Authentication configuration
 const config = {
@@ -45,7 +83,24 @@ app.get('/', requiresAuth(), (req, res) => {
 
 app.post('/convert', requiresAuth(), (req, res) => {
   const code = cv_fn.convert(req.body.code);
-  res.end(JSON.stringify({ code }));
+  const userMessage = `Please convert this code to an Auth0 action and only reply back the corrected code in a javascript block "${code}"`;
+  //res.end(JSON.stringify({ code }));
+  callChatGPT(userMessage)
+  .then(assistantReply => {
+    const codeRegex = /```javascript(.*?)```/s;
+    const match = assistantReply.match(codeRegex);
+    if (match) {
+      const extractedCode = match[1];
+      res.end(JSON.stringify({extractedCode}));
+    } else {
+      console.log("No code block found in the reply.");
+      res.end(JSON.stringify({"error":"No code block found in the reply."}));
+    }
+  })
+  .catch(error => {
+    // Handle errors
+    res.end(JSON.stringify({ error }));
+  });
 });
 
 // Set the server to listen on a specific port

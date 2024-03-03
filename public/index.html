@@ -73,7 +73,7 @@
               })
               .then(response => response.json())
               .then(data => {
-                editor2.setValue(data.code);
+                editor2.setValue(data.extractedCode);
               })
               .catch(error => {
                 console.error('Error:', error);
