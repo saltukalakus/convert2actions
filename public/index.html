@@ -7,12 +7,16 @@
     <!-- Load Monaco Editor's loader.js script -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.27.0/min/vs/loader.js"></script>
     <script src="samples.js"></script>
+    <script src="conversion_options.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
+    <div style="display: flex; justify-content: space-between; padding: 10px;">
       <div>
-        <button id="convertButton"><b>Convert</b></button>
+        <label for="conversionOptions"><b>Convert</b></label>
+        <select id="conversionOptions" onchange="executeSelectedConversion()">
+            <option value="">What should we convert?</option>
+        </select>
       </div>
       <div>
         <label for="samples"><b>Test with a sample:</b></label>
@@ -22,7 +26,7 @@
     </div>
   </div>
     <div style="display: flex; height: 90vh;">
-        <div id="editor1" style="flex: 1;"><b>Rule</b></div>
+        <div id="editor1" style="flex: 1;"><b>Rule/Hook</b></div>
         <div id="editor2" style="flex: 1;"><b>Action</b></div>
     </div>
 
@@ -32,7 +36,7 @@
         require(['vs/editor/editor.main'], function () {
             // Initialize Monaco Editor for the first editor
             var editor1 = monaco.editor.create(document.getElementById('editor1'), {
-                value: `console.log('Please enter a valid Auth0 rule here and press "Convert"!');`,
+                value: `console.log('Please enter a valid Auth0 rule/hook here and press "Convert"!');`,
                 language: 'javascript',
                 theme: 'vs-dark', // Change theme if needed
             });
@@ -65,12 +69,40 @@ The converted action code will appear here\`);`,
                 editor1.setValue(selectedSample);
             };
 
-            // Convert button click event
-            document.getElementById('convertButton').addEventListener('click', function () {
+            // Populate the dropdown with samples
+            var conversionDropdown = document.getElementById('conversionOptions');
+            conversionOptions.forEach(conversion => {
+                var option = document.createElement('option');
+                option.value = conversion.code;
+                option.text = conversion.name;
+                conversionDropdown.add(option);
+            });
+
+            // Function to load the selected rule into editor1
+            window.executeSelectedConversion = function () {
+                var selectedSample= document.getElementById('conversionOptions').value;
+                if (selectedSample == "Rule") {
+                  convertRule(); 
+                } else if (selectedSample == "SendPhoneMessageHook") {
+                  convertSendPhoneMessageHook();
+                } else if (selectedSample == "ClientCredentialsHook") {
+                  convertClientCredentialsHook();
+                } else if (selectedSample == "PreUserRegistrationHook") {
+                  convertPreUserRegistrationHook();
+                } else if (selectedSample == "PostUserRegistrationHook") {
+                  convertPostUserRegistrationHook();
+                } else if (selectedSample == "PostChangePasswordHook") {
+                  convertPostChangePasswordHook();
+                }
+            };
+
+            // Convert Rule button click event
+            function convertRule() {
+              console.log("Converting a Rule...");
               const code = editor1.getValue();
 
               // Make a POST request to the backend
-              fetch('/convert', {
+              fetch('/convert-rule', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -85,7 +117,122 @@ The converted action code will appear here\`);`,
                 console.error('Error:', error);
                 // Handle errors
               });
-            });
+            };
+
+            // Convert Send Phone Message Hook click event
+            function convertSendPhoneMessageHook () {
+              console.log("Converting Send Phone Message Hook...");
+              const code = editor1.getValue();
+
+              // Make a POST request to the backend
+              fetch('/convert-hook-phone-message', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code }),
+              })
+              .then(response => response.json())
+              .then(data => {
+                editor2.setValue(data.extractedCode);
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                // Handle errors
+              });
+            };
+
+            // Convert Client Credentials Hook click event
+            function convertClientCredentialsHook() {
+              console.log("Converting Client Credentials Hook...");
+              const code = editor1.getValue();
+
+              // Make a POST request to the backend
+              fetch('/convert-hook-client-credentials', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code }),
+              })
+              .then(response => response.json())
+              .then(data => {
+                editor2.setValue(data.extractedCode);
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                // Handle errors
+              });
+            };
+
+            // Convert Pre User Registration Hook click event
+            function convertPreUserRegistrationHook () {
+              console.log("Converting Pre User Registration Hook...");
+              const code = editor1.getValue();
+
+              // Make a POST request to the backend
+              fetch('/convert-hook-pre-user-registration', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code }),
+              })
+              .then(response => response.json())
+              .then(data => {
+                editor2.setValue(data.extractedCode);
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                // Handle errors
+              });
+            }; 
+
+            // Convert Post User Registration Hook click event
+            function convertPostUserRegistrationHook () {
+              console.log("Converting Post User Registration Hook...");
+              const code = editor1.getValue();
+
+              // Make a POST request to the backend
+              fetch('/convert-hook-post-user-registration', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code }),
+              })
+              .then(response => response.json())
+              .then(data => {
+                editor2.setValue(data.extractedCode);
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                // Handle errors
+              });
+            };
+
+            // Convert Post Change Password Hook click event
+            function convertPostChangePasswordHook () {
+              console.log("Converting Post Change Password Hook...");
+              const code = editor1.getValue();
+
+              // Make a POST request to the backend
+              fetch('/convert-hook-post-change-password', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code }),
+              })
+              .then(response => response.json())
+              .then(data => {
+                editor2.setValue(data.extractedCode);
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                // Handle errors
+              });
+            };
         });
     </script>
 </body>

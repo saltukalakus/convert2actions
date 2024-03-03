@@ -105,11 +105,131 @@ app.get('/', requiresAuth(), (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
-app.post('/convert', requiresAuth(), (req, res) => {
+app.post('/convert-rule', requiresAuth(), (req, res) => {
   const code = req.body.code;
-  const userMessage = `Please convert this Auth0 Rule to an Auth0 Action and only reply back the corrected code in a javascript block "${code}"`;
+  const userMessage = `Convert this Auth0 Rule to Auth0 Action which should start with exports.onExecutePostLogin and reply back the converted code in a javascript block "${code}"`;
 
   logger.log('info', 'RULE Conversion - User: ' +  req.oidc.user.sub + ' Code:' + code);
+
+  callChatGPT(userMessage)
+  .then(assistantReply => {
+    const codeRegex = /```javascript(.*?)```/s;
+    const match = assistantReply.match(codeRegex);
+    if (match) {
+      const extractedCode = match[1];
+      res.end(JSON.stringify({extractedCode}));
+    } else {
+      console.log("No code block found in the reply.");
+      res.end(JSON.stringify({"error":"No code block found in the reply."}));
+    }
+  })
+  .catch(error => {
+    // Handle errors
+    res.end(JSON.stringify({ error }));
+  });
+});
+
+app.post('/convert-hook-phone-message', requiresAuth(), (req, res) => {
+  const code = req.body.code;
+  const userMessage = `Convert this Auth0 Send Phone Message Hook to Auth0 Send Phone Message Action which should start with exports.onExecuteSendPhoneMessage and reply back the converted code in a javascript block "${code}"`;
+
+  logger.log('info', 'Hook Conversion - User: ' +  req.oidc.user.sub + ' Code:' + code);
+
+  callChatGPT(userMessage)
+  .then(assistantReply => {
+    const codeRegex = /```javascript(.*?)```/s;
+    const match = assistantReply.match(codeRegex);
+    if (match) {
+      const extractedCode = match[1];
+      res.end(JSON.stringify({extractedCode}));
+    } else {
+      console.log("No code block found in the reply.");
+      res.end(JSON.stringify({"error":"No code block found in the reply."}));
+    }
+  })
+  .catch(error => {
+    // Handle errors
+    res.end(JSON.stringify({ error }));
+  });
+});
+
+app.post('/convert-hook-client-credentials', requiresAuth(), (req, res) => {
+  const code = req.body.code;
+  const userMessage = `Convert this Auth0 Client Credentials Exchange Hook to Auth0 Machine to Machine Action which should start with exports.onExecuteCredentialsExchange and reply back the converted code in a javascript block "${code}"`;
+
+  logger.log('info', 'Hook Conversion - User: ' +  req.oidc.user.sub + ' Code:' + code);
+
+  callChatGPT(userMessage)
+  .then(assistantReply => {
+    const codeRegex = /```javascript(.*?)```/s;
+    const match = assistantReply.match(codeRegex);
+    if (match) {
+      const extractedCode = match[1];
+      res.end(JSON.stringify({extractedCode}));
+    } else {
+      console.log("No code block found in the reply.");
+      res.end(JSON.stringify({"error":"No code block found in the reply."}));
+    }
+  })
+  .catch(error => {
+    // Handle errors
+    res.end(JSON.stringify({ error }));
+  });
+});
+
+app.post('/convert-hook-pre-user-registration', requiresAuth(), (req, res) => {
+  const code = req.body.code;
+  const userMessage = `Convert this Auth0 Pre User Registration Hook to Auth0 Pre User Registration Action which should start with exports.onExecutePreUserRegistration and reply back the converted code in a javascript block "${code}"`;
+
+  logger.log('info', 'Hook Conversion - User: ' +  req.oidc.user.sub + ' Code:' + code);
+
+  callChatGPT(userMessage)
+  .then(assistantReply => {
+    const codeRegex = /```javascript(.*?)```/s;
+    const match = assistantReply.match(codeRegex);
+    if (match) {
+      const extractedCode = match[1];
+      res.end(JSON.stringify({extractedCode}));
+    } else {
+      console.log("No code block found in the reply.");
+      res.end(JSON.stringify({"error":"No code block found in the reply."}));
+    }
+  })
+  .catch(error => {
+    // Handle errors
+    res.end(JSON.stringify({ error }));
+  });
+});
+
+app.post('/convert-hook-post-user-registration', requiresAuth(), (req, res) => {
+  const code = req.body.code;
+  const userMessage = `Convert this Auth0 Post User Registration Hook to Auth0 Post User Registration Action which should start with exports.onExecutePostUserRegistration and reply back the converted code in a javascript block "${code}"`;
+
+  logger.log('info', 'Hook Conversion - User: ' +  req.oidc.user.sub + ' Code:' + code);
+
+  callChatGPT(userMessage)
+  .then(assistantReply => {
+    const codeRegex = /```javascript(.*?)```/s;
+    const match = assistantReply.match(codeRegex);
+    if (match) {
+      const extractedCode = match[1];
+      res.end(JSON.stringify({extractedCode}));
+    } else {
+      console.log("No code block found in the reply.");
+      res.end(JSON.stringify({"error":"No code block found in the reply."}));
+    }
+  })
+  .catch(error => {
+    // Handle errors
+    res.end(JSON.stringify({ error }));
+  });
+});
+
+app.post('/convert-hook-post-change-password', requiresAuth(), (req, res) => {
+  const code = req.body.code;
+  const userMessage = `Convert this Auth0 Post Change Password Hook to Auth0 Post Change Password Action which should start with exports.onExecutePostChangePassword and reply back the converted code in a javascript block "${code}"`;
+
+  logger.log('info', 'Hook Conversion - User: ' +  req.oidc.user.sub + ' Code:' + code);
 
   callChatGPT(userMessage)
   .then(assistantReply => {
