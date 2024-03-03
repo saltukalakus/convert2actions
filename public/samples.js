@@ -39,4 +39,51 @@ const sampleCodes = [
  }
 `,
 },
+{
+  name: 'Client Credentials Exchange (M2M) Hook',
+  code: `module.exports = function(client, scope, audience, context, cb) {
+    var access_token = {};
+    access_token.scope = scope;
+  
+    cb(null, access_token);
+  };
+`,
+},
+{
+  name: 'Pre User Registration Hook',
+  code: `module.exports = function (user, context, cb) {
+    var response = {};
+    response.user = user;
+    cb(null, response);
+  };
+`,
+},
+{
+  name: 'Post User Registration Hook',
+  code: `module.exports = function (user, context, cb) {
+    // Perform any asynchronous actions, e.g. send notification to Slack.
+    console.log(context);
+    cb();
+  };
+`,
+},
+{
+  name: 'Post Change Password Hook',
+  code: `module.exports = function (user, context, cb) {
+    // Perform any asynchronous actions, e.g. send notification to Slack.
+    cb();
+  };
+`,
+},
+{
+  name: 'Send Phone Message Hook',
+  code: `module.exports = function(recipient, text, context, cb) {
+    // Configure custom phone message
+  
+    cb(null, {});
+  };
+`,
+},
 ];
+
+
