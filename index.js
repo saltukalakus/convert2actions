@@ -5,6 +5,31 @@ const { auth } = require('express-openid-connect');
 const { requiresAuth } = require('express-openid-connect');
 require('dotenv').config();
 const axios = require('axios');
+const winston = require('winston');
+
+// Define the logger configuration
+const logger = winston.createLogger({
+  level: 'info', // Set the default logging level
+  format: winston.format.combine(
+    winston.format.timestamp(), // Add timestamp to logs
+    winston.format.json() // Log in JSON format
+  ),
+  transports: [
+    new winston.transports.File({
+      filename: 'logfile.log', // Name of the log file
+      level: 'info', // Log level for this transport
+      maxsize: 5242880, // Max size of the log file in bytes (5MB in this example)
+      maxFiles: 5, // Max number of log files to keep (5 in this example)
+      tailable: true, // Allow new logs to be appended when the file is rotated
+      handleExceptions: true, // Handle exceptions automatically
+    })
+  ]
+});
+
+// Optionally, log uncaught exceptions
+logger.exceptions.handle(
+  new winston.transports.File({ filename: 'exceptions.log' })
+);
 
 const apiKey = process.env.CHATGPT_TOKEN;  
 const endpoint = process.env.CHATGPT_ENDPOINT;  
@@ -82,8 +107,10 @@ app.get('/', requiresAuth(), (req, res) => {
 
 app.post('/convert', requiresAuth(), (req, res) => {
   const code = req.body.code;
-  const userMessage = `Please convert this code to an Auth0 action and only reply back the corrected code in a javascript block "${code}"`;
-  //res.end(JSON.stringify({ code }));
+  const userMessage = `Please convert this Auth0 Rule to an Auth0 Action and only reply back the corrected code in a javascript block "${code}"`;
+
+  logger.log('info', 'RULE Conversion - User: ' +  req.oidc.user.sub + ' Code:' + code);
+
   callChatGPT(userMessage)
   .then(assistantReply => {
     const codeRegex = /```javascript(.*?)```/s;

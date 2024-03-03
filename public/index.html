@@ -39,7 +39,13 @@
 
             // Initialize Monaco Editor for the second editor
             var editor2 = monaco.editor.create(document.getElementById('editor2'), {
-                value: `console.log('ONLY FOR TESTING NON-CONFIDENTIAL CODE. The converted action code will appear here');`,
+                value: `console.log(\`!!!ONLY FOR TESTING NON-CONFIDENTIAL CODE !!!                 
+AVOID COPY/PASTING CUSTOMER SECRETS, CUSTOMER IDENTIFIABLE NAMES AND URLS
+THE CODE IS SHARED WITH OPENAI & USER ACTIVITY AND PAYLOADS ARE LOGGED 
+
+If the conversion isn't satisfactory, re-try to convert as the output may be improved.
+
+The converted action code will appear here\`);`,
                 language: 'javascript',
                 theme: 'vs-dark', // Change theme if needed
             });
