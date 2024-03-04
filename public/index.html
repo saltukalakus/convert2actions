@@ -36,20 +36,25 @@
         require(['vs/editor/editor.main'], function () {
             // Initialize Monaco Editor for the first editor
             var editor1 = monaco.editor.create(document.getElementById('editor1'), {
-                value: `console.log('Please enter a valid Auth0 rule/hook here and press "Convert"!');`,
+                value: `console.log(\`
+                
+!!!ONLY FOR TESTING NON-CONFIDENTIAL CODE !!! 
+
+AVOID SHARING SECRETS, CUSTOMER IDENTIFIABLE NAMES AND URLS
+
+THE CODE IS SHARED WITH OPENAI & USER ACTIVITY AND PAYLOADS ARE LOGGED!
+
+If the conversion isn't satisfactory, re-try to convert as the output may be improved.
+
+Please enter a valid Auth0 rule/hook here and select the appropriate option 
+from the "Convert" dropdown!\`);`,
                 language: 'javascript',
                 theme: 'vs-dark', // Change theme if needed
             });
 
             // Initialize Monaco Editor for the second editor
             var editor2 = monaco.editor.create(document.getElementById('editor2'), {
-                value: `console.log(\`!!!ONLY FOR TESTING NON-CONFIDENTIAL CODE !!!                 
-AVOID COPY/PASTING CUSTOMER SECRETS, CUSTOMER IDENTIFIABLE NAMES AND URLS
-THE CODE IS SHARED WITH OPENAI & USER ACTIVITY AND PAYLOADS ARE LOGGED 
-
-If the conversion isn't satisfactory, re-try to convert as the output may be improved.
-
-The converted action code will appear here\`);`,
+                value: `console.log(\`The converted action code will appear here\`);`,
                 language: 'javascript',
                 theme: 'vs-dark', // Change theme if needed
             });
@@ -95,12 +100,10 @@ The converted action code will appear here\`);`,
                   convertPostChangePasswordHook();
                 }
             };
-
             // Convert Rule button click event
             function convertRule() {
-              console.log("Converting a Rule...");
               const code = editor1.getValue();
-
+              editor2.setValue(`console.log(\`PLEASE WAIT.. RULE IS GETTING CONVERTED..\`);`);
               // Make a POST request to the backend
               fetch('/convert-rule', {
                 method: 'POST',
@@ -115,15 +118,14 @@ The converted action code will appear here\`);`,
               })
               .catch(error => {
                 console.error('Error:', error);
-                // Handle errors
+                editor2.setValue('Error: ' + error);
               });
             };
 
             // Convert Send Phone Message Hook click event
             function convertSendPhoneMessageHook () {
-              console.log("Converting Send Phone Message Hook...");
               const code = editor1.getValue();
-
+              editor2.setValue(`console.log(\`PLEASE WAIT.. SEND PHONE MESSAGE HOOK IS GETTING CONVERTED..\`);`);
               // Make a POST request to the backend
               fetch('/convert-hook-phone-message', {
                 method: 'POST',
@@ -138,14 +140,14 @@ The converted action code will appear here\`);`,
               })
               .catch(error => {
                 console.error('Error:', error);
-                // Handle errors
+                editor2.setValue('Error: ' + error);
               });
             };
 
             // Convert Client Credentials Hook click event
             function convertClientCredentialsHook() {
-              console.log("Converting Client Credentials Hook...");
               const code = editor1.getValue();
+              editor2.setValue(`console.log(\`PLEASE WAIT.. CLIENT CREDENTIALS HOOK IS GETTIING CONVERTED..\`);`);
 
               // Make a POST request to the backend
               fetch('/convert-hook-client-credentials', {
@@ -161,14 +163,14 @@ The converted action code will appear here\`);`,
               })
               .catch(error => {
                 console.error('Error:', error);
-                // Handle errors
+                editor2.setValue('Error: ' + error);
               });
             };
 
             // Convert Pre User Registration Hook click event
             function convertPreUserRegistrationHook () {
-              console.log("Converting Pre User Registration Hook...");
               const code = editor1.getValue();
+              editor2.setValue(`console.log(\`PLEASE WAIT.. PRE USER REGISTRATION HOOK IS GETTING CONVERTED..\`);`);
 
               // Make a POST request to the backend
               fetch('/convert-hook-pre-user-registration', {
@@ -184,14 +186,14 @@ The converted action code will appear here\`);`,
               })
               .catch(error => {
                 console.error('Error:', error);
-                // Handle errors
+                editor2.setValue('Error: ' + error);
               });
             }; 
 
             // Convert Post User Registration Hook click event
             function convertPostUserRegistrationHook () {
-              console.log("Converting Post User Registration Hook...");
               const code = editor1.getValue();
+              editor2.setValue(`console.log(\`PLEASE WAIT.. POST USER REGISTRATION HOOK IS GETTING CONVERTED..\`);`);
 
               // Make a POST request to the backend
               fetch('/convert-hook-post-user-registration', {
@@ -207,14 +209,14 @@ The converted action code will appear here\`);`,
               })
               .catch(error => {
                 console.error('Error:', error);
-                // Handle errors
+                editor2.setValue('Error: ' + error);
               });
             };
 
             // Convert Post Change Password Hook click event
             function convertPostChangePasswordHook () {
-              console.log("Converting Post Change Password Hook...");
               const code = editor1.getValue();
+              editor2.setValue(`console.log(\`PLEASE WAIT.. POST CHANGE PASSWORD HOOK IS GETTING CONVERTED..\`);`);
 
               // Make a POST request to the backend
               fetch('/convert-hook-post-change-password', {
@@ -230,7 +232,7 @@ The converted action code will appear here\`);`,
               })
               .catch(error => {
                 console.error('Error:', error);
-                // Handle errors
+                editor2.setValue('Error: ' + error);
               });
             };
         });
